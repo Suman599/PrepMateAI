@@ -5,8 +5,8 @@ import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 
-// Runtime-safe API URL: fallback ensures it works if env variable is undefined
-const API_URL ="https://prepmateai.onrender.com";
+// API URL
+const API_URL = "https://prepmateai.onrender.com";
 console.log('API URL being used:', API_URL);
 
 const Login = () => {
@@ -22,23 +22,20 @@ const Login = () => {
     setLoading(true);
     try {
       // POST request to backend login
-      const response = await axios.post(`${API_URL}/api/auth/login`, { email, password })
-       .then(res => {
-    const token = res.data.token;
-    localStorage.setItem('user', JSON.stringify({ token }));
-  })
-  .catch(err => console.error(err));
+      const response = await axios.post(`${API_URL}/api/auth/login`, { email, password });
+
       const token = response.data.token;
 
       if (token) {
-        localStorage.setItem('token', token); // store token
+        // Store token in localStorage in the format Practice.jsx expects
+        localStorage.setItem('user', JSON.stringify({ token }));
         toast.success('Login successful!');
         navigate('/'); // redirect to dashboard
       } else {
         toast.error('Invalid login response from server');
       }
     } catch (err) {
-      console.error(err);
+      console.error('Login error:', err);
       toast.error(err.response?.data?.message || 'Login failed');
     } finally {
       setLoading(false);
