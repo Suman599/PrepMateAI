@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import axios from 'axios'; // IMPORT AXIOS
 
 const API_URL = process.env.REACT_APP_API_URL; // make sure this is set in your .env
+console.log('API URL:', API_URL);
 
 const Login = () => {
   const navigate = useNavigate();
