@@ -58,20 +58,6 @@ const Practice = () => {
     },
   });
 
-  // Retrieve token from localStorage
-  const getToken = () => {
-    try {
-      const userString = localStorage.getItem('user');
-      if (userString) {
-        const userObject = JSON.parse(userString);
-        if (userObject?.token) return userObject.token;
-      }
-    } catch (e) {
-      console.error("Error parsing 'user' from localStorage:", e);
-    }
-    return localStorage.getItem('userToken') || null;
-  };
-
   // Start recording
   const start = () => {
     setTimer(0);
@@ -92,28 +78,14 @@ const Practice = () => {
     return `${minutes}:${seconds}`;
   };
 
-  // Fetch question from backend
+  // Fetch question from backend (no token required)
   const fetchQuestion = async (selectedCategory) => {
-    const token = getToken();
-    console.log("Fetching question for category:", selectedCategory);
-    console.log("Using token:", token);
-    console.log("Full URL:", `${API_URL}/api/questions/random/${selectedCategory}`);
-
-    if (!token) {
-      toast.error('Authentication Error. Please log in again.');
-      setIsLoadingQuestion(false);
-      return;
-    }
-
     setIsLoadingQuestion(true);
     setQuestion(null);
     setFeedback(null);
 
     try {
-      const { data } = await axios.get(`${API_URL}/api/questions/random/${selectedCategory}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      console.log("Received question data:", data);
+      const { data } = await axios.get(`${API_URL}/api/questions/random/${selectedCategory}`);
       setQuestion(data);
     } catch (err) {
       console.error("Error fetching question:", err.response?.data || err.message);
@@ -127,14 +99,8 @@ const Practice = () => {
     if (category) fetchQuestion(category);
   }, [category]);
 
-  // Submit answer to AI backend
+  // Submit answer to AI backend (no token required)
   const handleSubmit = async () => {
-    const token = getToken();
-    console.log("Submitting answer for question:", question);
-    console.log("Transcript:", transcript);
-    console.log("Using token:", token);
-
-    if (!token) return toast.error('Authentication Error. Please log in again.');
     if (!transcript) return toast.error('Your answer is empty!');
     if (!question) return toast.error('No question loaded!');
 
@@ -146,10 +112,7 @@ const Practice = () => {
         category: question.category,
         question: question.text,
         answerTranscript: transcript,
-      }, {
-        headers: { Authorization: `Bearer ${token}` },
       });
-      console.log("AI feedback received:", data);
       setFeedback(data.feedback);
       toast.success('AI evaluation complete!');
     } catch (err) {
@@ -159,7 +122,6 @@ const Practice = () => {
       setIsSubmitting(false);
     }
   };
-
   // --- WRAPPED RETURN STATEMENT IN THEMEPROVIDER ---
   return (
     <ThemeProvider theme={darkTheme}>
