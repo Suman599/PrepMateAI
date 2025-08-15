@@ -1,23 +1,49 @@
 import React, { useState } from 'react';
-import { TextField, Button, Container, Typography, Paper, Link } from '@mui/material';
-import { useAuth } from '../context/AuthContext';
+import { TextField, Button, Container, Typography, Paper, Link, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-const API_URL = process.env.REACT_APP_API_URL;
+import axios from 'axios';
+import toast from 'react-hot-toast';
+
+const API_URL = "https://prepmateai.onrender.com"; // Use your Render backend
+
 const Register = () => {
-  const { register } = useAuth(); // <-- this will work if imports are correct
   const navigate = useNavigate();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!name || !email || !password) {
+      return toast.error('Please fill all fields');
+    }
+
+    setLoading(true);
     try {
-      await register(name, email, password);
-      navigate('/');
-    } catch {}
+      const response = await axios.post(`${API_URL}/api/auth/register`, {
+        name,
+        email,
+        password,
+      });
+
+      const token = response.data.token;
+      if (token) {
+        localStorage.setItem('token', token);
+        toast.success('Registration successful!');
+        navigate('/'); // redirect to homepage
+      } else {
+        toast.error('Invalid registration response');
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || 'Registration failed');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -26,8 +52,11 @@ const Register = () => {
       sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}
     >
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }}>
-        <Paper sx={{ p: 4 }}>
-          <Typography variant="h4" sx={{ mb: 3 }}>Register</Typography>
+        <Paper sx={{ p: 6, backdropFilter: 'blur(10px)', backgroundColor: 'rgba(255,255,255,0.2)' }}>
+          <Box textAlign="center" mb={3}>
+            <Typography variant="h4">Register</Typography>
+          </Box>
+
           <form onSubmit={handleSubmit}>
             <TextField
               fullWidth
@@ -39,6 +68,7 @@ const Register = () => {
             <TextField
               fullWidth
               label="Email"
+              type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               sx={{ mb: 2 }}
@@ -49,17 +79,21 @@ const Register = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              sx={{ mb: 2 }}
+              sx={{ mb: 3 }}
             />
-            <Button type="submit" variant="contained" fullWidth>Register</Button>
+            <Button type="submit" variant="contained" fullWidth disabled={loading}>
+              {loading ? 'Registering...' : 'Register'}
+            </Button>
           </form>
 
-          <Typography variant="body2" sx={{ mt: 2 }}>
-            Already have an account?{' '}
-            <Link component="button" variant="body2" onClick={() => navigate('/login')}>
-              Login
-            </Link>
-          </Typography>
+          <Box textAlign="center" mt={3}>
+            <Typography variant="body2">
+              Already have an account?{' '}
+              <Link component="button" variant="body2" onClick={() => navigate('/login')}>
+                Login
+              </Link>
+            </Typography>
+          </Box>
         </Paper>
       </motion.div>
     </Container>
