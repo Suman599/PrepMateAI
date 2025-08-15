@@ -16,9 +16,8 @@ import {
   Stack,
 } from '@mui/material';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import MenuIcon from '@mui/icons-material/Menu';
-import GraphicEqIcon from '@mui/icons-material/GraphicEq'; // Icon for logo
+import GraphicEqIcon from '@mui/icons-material/GraphicEq';
 import HomeIcon from '@mui/icons-material/Home';
 import MicIcon from '@mui/icons-material/Mic';
 import HistoryIcon from '@mui/icons-material/History';
@@ -28,18 +27,19 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const token = localStorage.getItem('token'); // ✅ check authentication
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
   const handleLogout = () => {
-    logout();
+    localStorage.removeItem('token');
     navigate('/login');
   };
 
@@ -59,7 +59,7 @@ const Navbar = () => {
       </Stack>
       <Divider />
       <List>
-        {user && navLinks.map((link) => (
+        {token && navLinks.map((link) => (
           <ListItem key={link.text} disablePadding>
             <ListItemButton component={NavLink} to={link.path}>
               <ListItemIcon>{link.icon}</ListItemIcon>
@@ -69,7 +69,7 @@ const Navbar = () => {
         ))}
       </List>
       <Divider sx={{ my: 2 }} />
-      {user ? (
+      {token ? (
         <Button variant="outlined" startIcon={<LogoutIcon />} onClick={handleLogout} sx={{ mx: 2 }}>
           Logout
         </Button>
@@ -93,14 +93,12 @@ const Navbar = () => {
         color="default"
         elevation={0}
         sx={{
-          // Glassmorphism effect
           background: 'rgba(255, 255, 255, 0.7)',
           backdropFilter: 'blur(10px)',
           borderBottom: '1px solid rgba(0, 0, 0, 0.12)',
         }}
       >
         <Toolbar sx={{ justifyContent: 'space-between', height: '70px' }}>
-          {/* Logo and Brand Name */}
           <Box
             component={NavLink}
             to="/"
@@ -112,20 +110,13 @@ const Navbar = () => {
             </Typography>
           </Box>
 
-          {/* Conditional Rendering for Mobile vs Desktop */}
           {isMobile ? (
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              edge="start"
-              onClick={handleDrawerToggle}
-            >
+            <IconButton color="inherit" aria-label="open drawer" edge="start" onClick={handleDrawerToggle}>
               <MenuIcon />
             </IconButton>
           ) : (
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              {/* Desktop Navigation Links */}
-              {user && (
+              {token && (
                 <Stack direction="row" spacing={1} sx={{ mr: 3 }}>
                   {navLinks.map((link) => (
                     <Button
@@ -135,13 +126,8 @@ const Navbar = () => {
                       sx={{
                         color: 'text.primary',
                         fontWeight: 500,
-                        '&:hover': {
-                          backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                        },
-                        '&.active': {
-                          color: 'primary.main',
-                          fontWeight: 'bold',
-                        },
+                        '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
+                        '&.active': { color: 'primary.main', fontWeight: 'bold' },
                       }}
                     >
                       {link.text}
@@ -150,8 +136,7 @@ const Navbar = () => {
                 </Stack>
               )}
 
-              {/* Desktop Action Buttons */}
-              {user ? (
+              {token ? (
                 <Button variant="outlined" onClick={handleLogout}>
                   Logout
                 </Button>
@@ -169,8 +154,7 @@ const Navbar = () => {
           )}
         </Toolbar>
       </AppBar>
-      
-      {/* Mobile Drawer */}
+
       <Box component="nav">
         <Drawer
           variant="temporary"
