@@ -5,9 +5,8 @@ import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 
-// API URL
+// Backend API URL
 const API_URL = "https://prepmateai.onrender.com";
-console.log('API URL being used:', API_URL);
 
 const Login = () => {
   const navigate = useNavigate();
@@ -23,19 +22,18 @@ const Login = () => {
     try {
       // POST request to backend login
       const response = await axios.post(`${API_URL}/api/auth/login`, { email, password });
-
       const token = response.data.token;
 
       if (token) {
-        // Store token in localStorage in the format Practice.jsx expects
+        // Store token in localStorage as an object
         localStorage.setItem('user', JSON.stringify({ token }));
         toast.success('Login successful!');
-        navigate('/'); // redirect to dashboard
+        navigate('/practice'); // redirect to Practice page
       } else {
         toast.error('Invalid login response from server');
       }
     } catch (err) {
-      console.error('Login error:', err);
+      console.error(err);
       toast.error(err.response?.data?.message || 'Login failed');
     } finally {
       setLoading(false);
