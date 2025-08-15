@@ -22,7 +22,12 @@ const Login = () => {
     setLoading(true);
     try {
       // POST request to backend login
-      const response = await axios.post(`${API_URL}/api/auth/login`, { email, password });
+      const response = await axios.post(`${API_URL}/api/auth/login`, { email, password })
+       .then(res => {
+    const token = res.data.token;
+    localStorage.setItem('user', JSON.stringify({ token }));
+  })
+  .catch(err => console.error(err));
       const token = response.data.token;
 
       if (token) {
