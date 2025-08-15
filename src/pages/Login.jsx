@@ -22,7 +22,7 @@ const Login = () => {
     setLoading(true);
     try {
       // POST request to backend login
-      const response = await axios.post(`${API_URL}/login`, { email, password });
+      const response = await axios.post(`${API_URL}/auth/login`, { email, password });
       const token = response.data.token;
 
       if (token) {
