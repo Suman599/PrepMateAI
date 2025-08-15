@@ -3,10 +3,11 @@ import { TextField, Button, Container, Typography, Paper, Box } from '@mui/mater
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
-import axios from 'axios'; // IMPORT AXIOS
+import axios from 'axios';
 
-const API_URL = "https://prepmateai.onrender.com" // make sure this is set in your .env
-console.log('API URL:', API_URL);
+// Runtime-safe API URL: fallback ensures it works if env variable is undefined
+const API_URL = process.env.REACT_APP_API_URL || "https://prepmateai.onrender.com";
+console.log('API URL being used:', API_URL);
 
 const Login = () => {
   const navigate = useNavigate();
@@ -20,16 +21,16 @@ const Login = () => {
 
     setLoading(true);
     try {
-      // Make POST request to backend login
+      // POST request to backend login
       const response = await axios.post(`${API_URL}/login`, { email, password });
-
       const token = response.data.token;
+
       if (token) {
         localStorage.setItem('token', token); // store token
         toast.success('Login successful!');
         navigate('/'); // redirect to dashboard
       } else {
-        toast.error('Invalid login response');
+        toast.error('Invalid login response from server');
       }
     } catch (err) {
       console.error(err);
