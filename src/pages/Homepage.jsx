@@ -10,7 +10,7 @@ import RecordVoiceOverIcon from '@mui/icons-material/RecordVoiceOver';
 import InsightsIcon from '@mui/icons-material/Insights';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = "https://prepmateai.onrender.com"
 
 // --- THIS IS THE ONLY CHANGE ---
 // A professional dark theme palette

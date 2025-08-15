@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import axios from 'axios';
 
 // Runtime-safe API URL: fallback ensures it works if env variable is undefined
-const API_URL = process.env.REACT_APP_API_URL || "https://prepmateai.onrender.com";
+const API_URL ="https://prepmateai.onrender.com";
 console.log('API URL being used:', API_URL);
 
 const Login = () => {

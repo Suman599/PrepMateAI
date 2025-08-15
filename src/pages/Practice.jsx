@@ -26,8 +26,8 @@ import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 // Backend URL
 const API_URL = 'https://prepmateai.onrender.com';
 
-// Hardcoded JWT token
-const TOKEN = '53fa6b95187d2797e68119671dc23a474ec25c1e9212901b390eb77cd0e59bfe516fbf1fb8e61802d1861dadd5d2d5b28e8e7dc47311385cc96e01e855fbb8e2';
+// Temporary fallback JWT (replace with a real JWT for production)
+const TEMP_JWT = 'YOUR_VALID_JWT_HERE';
 
 // Dark theme
 const darkTheme = createTheme({
@@ -61,6 +61,20 @@ const Practice = () => {
     },
   });
 
+  const getToken = () => {
+    try {
+      const userString = localStorage.getItem('user');
+      if (userString) {
+        const userObject = JSON.parse(userString);
+        if (userObject?.token) return userObject.token;
+      }
+    } catch (e) {
+      console.error("Error parsing 'user' from localStorage:", e);
+    }
+    // fallback to temp JWT
+    return localStorage.getItem('userToken') || TEMP_JWT;
+  };
+
   const start = () => {
     setTimer(0);
     startRecording();
@@ -86,7 +100,7 @@ const Practice = () => {
 
     try {
       const { data } = await axios.get(`${API_URL}/api/questions/random/${selectedCategory}`, {
-        headers: { Authorization: `Bearer ${TOKEN}` },
+        headers: { Authorization: `Bearer ${getToken()}` },
       });
       setQuestion(data);
     } catch (err) {
@@ -114,7 +128,7 @@ const Practice = () => {
         question: question.text,
         answerTranscript: transcript,
       }, {
-        headers: { Authorization: `Bearer ${TOKEN}` },
+        headers: { Authorization: `Bearer ${getToken()}` },
       });
       setFeedback(data.feedback);
       toast.success('AI evaluation complete!');
@@ -138,7 +152,7 @@ const Practice = () => {
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               sx={{ minWidth: 240, '& .MuiOutlinedInput-root': { backgroundColor: 'rgba(255, 255, 255, 0.95)', '&:hover': { backgroundColor: '#FFFFFF' }, '& fieldset': { borderColor: 'rgba(0, 0, 0, 0.23)' }, '&:hover fieldset': { borderColor: 'primary.main' } }, '& .MuiSelect-select': { color: '#1c2025' }, '& .MuiInputLabel-root': { color: 'rgba(0, 0, 0, 0.6)' } }}
-              SelectProps={{ PaperProps: { sx: { backgroundColor: '#ffffff', color: '#1c2025' } } }}
+              SelectProps={{ MenuProps: { PaperProps: { sx: { backgroundColor: '#ffffff', color: '#1c2025' } } } }}
             >
               <MenuItem value="HR">HR</MenuItem>
               <MenuItem value="Technical">Technical</MenuItem>
@@ -148,6 +162,7 @@ const Practice = () => {
 
           <Grid container spacing={4} alignItems="stretch" sx={{ minWidth: '95vw' }}>
             <Grid container spacing={2} alignItems="stretch">
+              {/* Question Box */}
               <Grid item xs={12} md={5} sx={{ minWidth: '35vw', display: 'flex' }}>
                 <Paper sx={{ p: 3, borderRadius: 4, display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
                   <Typography variant="h5" gutterBottom>The Question</Typography>
@@ -188,7 +203,8 @@ const Practice = () => {
                 </Paper>
               </Grid>
 
-              <Grid item xs={12} md={7} sx={{ minWidth: '35vw', minHeight:'65vh', display:'flex' }}>
+              {/* Answer Box */}
+              <Grid item xs={12} md={7} sx={{ minWidth: '35vw', minHeight: '65vh', display: 'flex' }}>
                 <Paper sx={{ p: 3, borderRadius: 4, display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
                   <Typography variant="h5" gutterBottom>Your Answer</Typography>
                   <TextField
