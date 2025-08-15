@@ -22,7 +22,7 @@ const Login = () => {
     setLoading(true);
     try {
       // POST request to backend login
-      const response = await axios.post(`${API_URL}/auth/login`, { email, password });
+      const response = await axios.post(`${API_URL}/api/auth/login`, { email, password });
       const token = response.data.token;
 
       if (token) {
@@ -87,7 +87,7 @@ const Login = () => {
           <Box textAlign="center" mt={3}>
             <Typography variant="body2" sx={{ mt: 2 }}>
               Don't have an account?{' '}
-              <Link to="/register" style={{ textDecoration: 'none', color: '#1976d2' }}>
+              <Link to="/api/auth/register" style={{ textDecoration: 'none', color: '#1976d2' }}>
                 Register
               </Link>
             </Typography>
