@@ -22,13 +22,12 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import MicIcon from '@mui/icons-material/Mic';
 import SendIcon from '@mui/icons-material/Send';
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
-import FeedbackGauge from '../components/FeedbackGauge';
 
 // Backend URL
 const API_URL = 'https://prepmateai.onrender.com';
 
-// Hardcoded JWT token (replace this with your actual token string from backend)
-const TOKEN = '53fa6b95187d2797e68119671dc23a474ec25c1e9212901b390eb77cd0e59bfe516fbf1fb8e61802d1861dadd5d2d5b28e8e7dc47311385cc96e01e855fbb8e2'; // <- replace with actual token string
+// Hardcoded JWT token
+const TOKEN = '53fa6b95187d2797e68119671dc23a474ec25c1e9212901b390eb77cd0e59bfe516fbf1fb8e61802d1861dadd5d2d5b28e8e7dc47311385cc96e01e855fbb8e2';
 
 // Dark theme
 const darkTheme = createTheme({
@@ -126,7 +125,7 @@ const Practice = () => {
       setIsSubmitting(false);
     }
   };
-  // --- WRAPPED RETURN STATEMENT IN THEMEPROVIDER ---
+
   return (
     <ThemeProvider theme={darkTheme}>
       <Container maxWidth="xl" sx={{ py: 4 }}>
@@ -139,7 +138,7 @@ const Practice = () => {
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               sx={{ minWidth: 240, '& .MuiOutlinedInput-root': { backgroundColor: 'rgba(255, 255, 255, 0.95)', '&:hover': { backgroundColor: '#FFFFFF' }, '& fieldset': { borderColor: 'rgba(0, 0, 0, 0.23)' }, '&:hover fieldset': { borderColor: 'primary.main' } }, '& .MuiSelect-select': { color: '#1c2025' }, '& .MuiInputLabel-root': { color: 'rgba(0, 0, 0, 0.6)' } }}
-              SelectProps={{ MenuProps: { PaperProps: { sx: { backgroundColor: '#ffffff', color: '#1c2025' } } } }}
+              SelectProps={{ PaperProps: { sx: { backgroundColor: '#ffffff', color: '#1c2025' } } }}
             >
               <MenuItem value="HR">HR</MenuItem>
               <MenuItem value="Technical">Technical</MenuItem>
@@ -147,113 +146,80 @@ const Practice = () => {
             </TextField>
           </Box>
 
-          {/* We make the boxes larger by setting a minimum height on their container */}
-<Grid container spacing={4} alignItems="stretch" sx={{ minWidth: '95vw' }}>
-  {/* Left Column: Question & Controls */}
-  <Grid container spacing={2} alignItems="stretch">
-  {/* Question Box */}
-  <Grid item xs={12} md={5} sx={{ minWidth: '35vw',display: 'flex' }}>
-    <Paper
-      sx={{
-        p: 3,
-        borderRadius: 4,
-        display: 'flex',
-        flexDirection: 'column',
-        flexGrow: 1,   // <-- makes it stretch to match sibling
-      }}
-    >
-      <Typography variant="h5" gutterBottom>The Question</Typography>
-      {isLoadingQuestion ? (
-        <Stack spacing={1}>
-          <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
-          <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
-          <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
-        </Stack>
-      ) : (
-        <Typography variant="h6" color="text.secondary" sx={{ minHeight: '100px' }}>
-          {question?.text || 'No question available for this category.'}
-        </Typography>
-      )}
-      <Box sx={{ flexGrow: 1 }} /> {/* Push controls to bottom */}
-      <Divider sx={{ my: 3 }} />
-      <Stack direction="column" alignItems="center" spacing={2}>
-        <Stack direction="row" alignItems="center" spacing={2} sx={{ height: '80px' }}>
-          <LottieMic isRecording={isRecording} />
-          {isRecording && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <Typography variant="h4" sx={{ fontFamily: 'monospace', color: 'primary.main' }}>
-                {formatTime(timer)}
-              </Typography>
-            </motion.div>
-          )}
-        </Stack>
-        <Button
-          variant="contained"
-          startIcon={<MicIcon />}
-          onClick={isRecording ? stop : start}
-          disabled={isLoadingQuestion}
-          sx={{ width: '200px' }}
-        >
-          {isRecording ? 'Stop Recording' : 'Start Recording'}
-        </Button>
-      </Stack>
-    </Paper>
-  </Grid>
+          <Grid container spacing={4} alignItems="stretch" sx={{ minWidth: '95vw' }}>
+            <Grid container spacing={2} alignItems="stretch">
+              <Grid item xs={12} md={5} sx={{ minWidth: '35vw', display: 'flex' }}>
+                <Paper sx={{ p: 3, borderRadius: 4, display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+                  <Typography variant="h5" gutterBottom>The Question</Typography>
+                  {isLoadingQuestion ? (
+                    <Stack spacing={1}>
+                      <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
+                      <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
+                      <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
+                    </Stack>
+                  ) : (
+                    <Typography variant="h6" color="text.secondary" sx={{ minHeight: '100px' }}>
+                      {question?.text || 'No question available for this category.'}
+                    </Typography>
+                  )}
+                  <Box sx={{ flexGrow: 1 }} />
+                  <Divider sx={{ my: 3 }} />
+                  <Stack direction="column" alignItems="center" spacing={2}>
+                    <Stack direction="row" alignItems="center" spacing={2} sx={{ height: '80px' }}>
+                      <LottieMic isRecording={isRecording} />
+                      {isRecording && (
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                          <Typography variant="h4" sx={{ fontFamily: 'monospace', color: 'primary.main' }}>
+                            {formatTime(timer)}
+                          </Typography>
+                        </motion.div>
+                      )}
+                    </Stack>
+                    <Button
+                      variant="contained"
+                      startIcon={<MicIcon />}
+                      onClick={isRecording ? stop : start}
+                      disabled={isLoadingQuestion}
+                      sx={{ width: '200px' }}
+                    >
+                      {isRecording ? 'Stop Recording' : 'Start Recording'}
+                    </Button>
+                  </Stack>
+                </Paper>
+              </Grid>
 
-  {/* Answer Box */}
-  <Grid item xs={12} md={7} sx={{ minWidth: '35vw' ,minHeight:'65vh', display:'flex' }}>
-    <Paper
-      sx={{
-        p: 3,
-        borderRadius: 4,
-        display: 'flex',
-        flexDirection: 'column',
-        flexGrow: 1,  // <-- stretch to match question box
-      }}
-    >
-      <Typography variant="h5" gutterBottom>Your Answer</Typography>
-      <TextField
-        multiline
-        fullWidth
-        variant="outlined"
-        value={transcript}
-        placeholder="Your recorded answer will appear here..."
-        InputProps={{ readOnly: true }}
-        sx={{
-          flexGrow: 1,
-          '& .MuiOutlinedInput-root': {
-            height: '100%',
-            backgroundColor: 'background.default',
-          },
-        }}
-      />
-      <Button
-        variant="contained"
-        color="secondary"
-        endIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : <SendIcon />}
-        disabled={isSubmitting || !transcript}
-        onClick={handleSubmit}
-        sx={{ mt: 2, color: 'background.default' }}
-      >
-        Analyze My Answer
-      </Button>
-    </Paper>
-  </Grid>
-</Grid>
+              <Grid item xs={12} md={7} sx={{ minWidth: '35vw', minHeight:'65vh', display:'flex' }}>
+                <Paper sx={{ p: 3, borderRadius: 4, display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+                  <Typography variant="h5" gutterBottom>Your Answer</Typography>
+                  <TextField
+                    multiline
+                    fullWidth
+                    variant="outlined"
+                    value={transcript}
+                    placeholder="Your recorded answer will appear here..."
+                    InputProps={{ readOnly: true }}
+                    sx={{ flexGrow: 1, '& .MuiOutlinedInput-root': { height: '100%', backgroundColor: 'background.default' } }}
+                  />
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    endIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : <SendIcon />}
+                    disabled={isSubmitting || !transcript}
+                    onClick={handleSubmit}
+                    sx={{ mt: 2, color: 'background.default' }}
+                  >
+                    Analyze My Answer
+                  </Button>
+                </Paper>
+              </Grid>
+            </Grid>
+          </Grid>
 
-</Grid>
-          
           <AnimatePresence>
             {feedback && (
               <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
                 <Paper sx={{ p: 4, borderRadius: 4, mt: 4 }}>
                   <Typography variant="h4" align="center" gutterBottom>AI Feedback Report</Typography>
-                  <Grid container spacing={4} justifyContent="center" sx={{ my: 3 }}>
-                    <Grid item><FeedbackGauge label="Clarity" score={feedback.clarity} /></Grid>
-                    <Grid item><FeedbackGauge label="Structure" score={feedback.structure} /></Grid>
-                    <Grid item><FeedbackGauge label="Grammar" score={feedback.grammar} /></Grid>
-                    {feedback.technical != null && <Grid item><FeedbackGauge label="Technical" score={feedback.technical} /></Grid>}
-                  </Grid>
                   <Divider sx={{ my: 3 }} />
                   <Stack direction="row" spacing={2} alignItems="center">
                     <TipsAndUpdatesIcon color="primary" />
