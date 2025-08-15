@@ -22,9 +22,13 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import MicIcon from '@mui/icons-material/Mic';
 import SendIcon from '@mui/icons-material/Send';
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
+import FeedbackGauge from '../components/FeedbackGauge';
 
 // Backend URL
 const API_URL = 'https://prepmateai.onrender.com';
+
+// Hardcoded JWT token (replace this with your actual token string from backend)
+const TOKEN = '53fa6b95187d2797e68119671dc23a474ec25c1e9212901b390eb77cd0e59bfe516fbf1fb8e61802d1861dadd5d2d5b28e8e7dc47311385cc96e01e855fbb8e2'; // <- replace with actual token string
 
 // Dark theme
 const darkTheme = createTheme({
@@ -58,60 +62,37 @@ const Practice = () => {
     },
   });
 
-  // --- Robust token extraction ---
-  const getToken = () => {
-    try {
-      const userStr = localStorage.getItem('user');
-      if (userStr) {
-        const userObj = JSON.parse(userStr);
-        if (userObj?.token) return userObj.token;
-      }
-    } catch (e) {
-      console.error("Error reading token from 'user' in localStorage:", e);
-    }
-    // Fallback
-    const token = localStorage.getItem('userToken');
-    return token ? token : null;
-  };
-
-  // Start/Stop recording
   const start = () => {
     setTimer(0);
     startRecording();
     const id = setInterval(() => setTimer(prev => prev + 1), 1000);
     setTimerId(id);
   };
+
   const stop = () => {
     stopRecording();
     if (timerId) clearInterval(timerId);
   };
-  const formatTime = (t) => {
-    const m = String(Math.floor(t / 60)).padStart(2, '0');
-    const s = String(t % 60).padStart(2, '0');
-    return `${m}:${s}`;
+
+  const formatTime = (timeInSeconds) => {
+    const minutes = Math.floor(timeInSeconds / 60).toString().padStart(2, '0');
+    const seconds = (timeInSeconds % 60).toString().padStart(2, '0');
+    return `${minutes}:${seconds}`;
   };
 
-  // --- Fetch question ---
   const fetchQuestion = async (selectedCategory) => {
-    const token = getToken();
     setIsLoadingQuestion(true);
     setQuestion(null);
     setFeedback(null);
 
-    if (!token) {
-      toast.error('Authentication token not found. Please log in.');
-      setIsLoadingQuestion(false);
-      return;
-    }
-
     try {
       const { data } = await axios.get(`${API_URL}/api/questions/random/${selectedCategory}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${TOKEN}` },
       });
       setQuestion(data);
     } catch (err) {
-      console.error("Error fetching question:", err.response?.data || err.message);
-      toast.error(err.response?.data?.message || 'Failed to load question.');
+      console.error('Error fetching question:', err.response?.data || err.message);
+      toast.error(err.response?.data?.message || 'Failed to load a new question.');
     } finally {
       setIsLoadingQuestion(false);
     }
@@ -121,10 +102,7 @@ const Practice = () => {
     if (category) fetchQuestion(category);
   }, [category]);
 
-  // --- Submit answer ---
   const handleSubmit = async () => {
-    const token = getToken();
-    if (!token) return toast.error('Authentication token not found. Please log in.');
     if (!transcript) return toast.error('Your answer is empty!');
     if (!question) return toast.error('No question loaded!');
 
@@ -137,12 +115,12 @@ const Practice = () => {
         question: question.text,
         answerTranscript: transcript,
       }, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${TOKEN}` },
       });
       setFeedback(data.feedback);
       toast.success('AI evaluation complete!');
     } catch (err) {
-      console.error("Error submitting answer:", err.response?.data || err.message);
+      console.error('Error submitting answer:', err.response?.data || err.message);
       toast.error(err.response?.data?.message || 'AI evaluation failed.');
     } finally {
       setIsSubmitting(false);
