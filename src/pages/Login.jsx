@@ -26,6 +26,7 @@ const Login = () => {
 
       if (token) {
         // Store token in localStorage as an object
+        console.log(token);
         localStorage.setItem('user', JSON.stringify({ token }));
         toast.success('Login successful!');
         navigate('/practice'); // redirect to Practice page
