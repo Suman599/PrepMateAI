@@ -58,38 +58,60 @@ const Practice = () => {
     },
   });
 
-  // Start recording
+  // --- Robust token extraction ---
+  const getToken = () => {
+    try {
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        const userObj = JSON.parse(userStr);
+        if (userObj?.token) return userObj.token;
+      }
+    } catch (e) {
+      console.error("Error reading token from 'user' in localStorage:", e);
+    }
+    // Fallback
+    const token = localStorage.getItem('userToken');
+    return token ? token : null;
+  };
+
+  // Start/Stop recording
   const start = () => {
     setTimer(0);
     startRecording();
     const id = setInterval(() => setTimer(prev => prev + 1), 1000);
     setTimerId(id);
   };
-
-  // Stop recording
   const stop = () => {
     stopRecording();
     if (timerId) clearInterval(timerId);
   };
-
-  const formatTime = (timeInSeconds) => {
-    const minutes = Math.floor(timeInSeconds / 60).toString().padStart(2, '0');
-    const seconds = (timeInSeconds % 60).toString().padStart(2, '0');
-    return `${minutes}:${seconds}`;
+  const formatTime = (t) => {
+    const m = String(Math.floor(t / 60)).padStart(2, '0');
+    const s = String(t % 60).padStart(2, '0');
+    return `${m}:${s}`;
   };
 
-  // Fetch question from backend (no token required)
+  // --- Fetch question ---
   const fetchQuestion = async (selectedCategory) => {
+    const token = getToken();
     setIsLoadingQuestion(true);
     setQuestion(null);
     setFeedback(null);
 
+    if (!token) {
+      toast.error('Authentication token not found. Please log in.');
+      setIsLoadingQuestion(false);
+      return;
+    }
+
     try {
-      const { data } = await axios.get(`${API_URL}/api/questions/random/${selectedCategory}`);
+      const { data } = await axios.get(`${API_URL}/api/questions/random/${selectedCategory}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setQuestion(data);
     } catch (err) {
       console.error("Error fetching question:", err.response?.data || err.message);
-      toast.error(err.response?.data?.message || 'Failed to load a new question.');
+      toast.error(err.response?.data?.message || 'Failed to load question.');
     } finally {
       setIsLoadingQuestion(false);
     }
@@ -99,8 +121,10 @@ const Practice = () => {
     if (category) fetchQuestion(category);
   }, [category]);
 
-  // Submit answer to AI backend (no token required)
+  // --- Submit answer ---
   const handleSubmit = async () => {
+    const token = getToken();
+    if (!token) return toast.error('Authentication token not found. Please log in.');
     if (!transcript) return toast.error('Your answer is empty!');
     if (!question) return toast.error('No question loaded!');
 
@@ -112,6 +136,8 @@ const Practice = () => {
         category: question.category,
         question: question.text,
         answerTranscript: transcript,
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
       });
       setFeedback(data.feedback);
       toast.success('AI evaluation complete!');
