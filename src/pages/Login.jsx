@@ -87,7 +87,7 @@ const Login = () => {
           <Box textAlign="center" mt={3}>
             <Typography variant="body2" sx={{ mt: 2 }}>
               Don't have an account?{' '}
-              <Link to="/api/auth/register" style={{ textDecoration: 'none', color: '#1976d2' }}>
+              <Link to="/register" style={{ textDecoration: 'none', color: '#1976d2' }}>
                 Register
               </Link>
             </Typography>
