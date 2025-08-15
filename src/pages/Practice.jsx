@@ -1,5 +1,18 @@
-import { React, useState, useEffect } from 'react';
-import { Container, Paper, Typography, Button, TextField, Box, Grid, CircularProgress, Stack, Divider, MenuItem } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import {
+  Container,
+  Paper,
+  Typography,
+  Button,
+  TextField,
+  Box,
+  Grid,
+  CircularProgress,
+  Stack,
+  Divider,
+  MenuItem,
+  Skeleton,
+} from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import axios from 'axios';
@@ -9,11 +22,11 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import MicIcon from '@mui/icons-material/Mic';
 import SendIcon from '@mui/icons-material/Send';
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
-import Skeleton from '@mui/material/Skeleton';
 
-// Use proper backend URL here
+// Backend URL
 const API_URL = 'https://prepmateai.onrender.com';
 
+// Dark theme
 const darkTheme = createTheme({
   palette: {
     mode: 'dark',
@@ -45,7 +58,7 @@ const Practice = () => {
     },
   });
 
-  // Proper token retrieval
+  // Retrieve token from localStorage
   const getToken = () => {
     try {
       const userString = localStorage.getItem('user');
@@ -59,6 +72,7 @@ const Practice = () => {
     return localStorage.getItem('userToken') || null;
   };
 
+  // Start recording
   const start = () => {
     setTimer(0);
     startRecording();
@@ -66,6 +80,7 @@ const Practice = () => {
     setTimerId(id);
   };
 
+  // Stop recording
   const stop = () => {
     stopRecording();
     if (timerId) clearInterval(timerId);
@@ -77,9 +92,13 @@ const Practice = () => {
     return `${minutes}:${seconds}`;
   };
 
-  // Fetch question with proper token
+  // Fetch question from backend
   const fetchQuestion = async (selectedCategory) => {
     const token = getToken();
+    console.log("Fetching question for category:", selectedCategory);
+    console.log("Using token:", token);
+    console.log("Full URL:", `${API_URL}/api/questions/random/${selectedCategory}`);
+
     if (!token) {
       toast.error('Authentication Error. Please log in again.');
       setIsLoadingQuestion(false);
@@ -94,9 +113,10 @@ const Practice = () => {
       const { data } = await axios.get(`${API_URL}/api/questions/random/${selectedCategory}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      console.log("Received question data:", data);
       setQuestion(data);
     } catch (err) {
-      console.error(err);
+      console.error("Error fetching question:", err.response?.data || err.message);
       toast.error(err.response?.data?.message || 'Failed to load a new question.');
     } finally {
       setIsLoadingQuestion(false);
@@ -107,11 +127,16 @@ const Practice = () => {
     if (category) fetchQuestion(category);
   }, [category]);
 
+  // Submit answer to AI backend
   const handleSubmit = async () => {
     const token = getToken();
+    console.log("Submitting answer for question:", question);
+    console.log("Transcript:", transcript);
+    console.log("Using token:", token);
+
     if (!token) return toast.error('Authentication Error. Please log in again.');
     if (!transcript) return toast.error('Your answer is empty!');
-    if (!question) return;
+    if (!question) return toast.error('No question loaded!');
 
     setIsSubmitting(true);
     setFeedback(null);
@@ -124,10 +149,11 @@ const Practice = () => {
       }, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      console.log("AI feedback received:", data);
       setFeedback(data.feedback);
       toast.success('AI evaluation complete!');
     } catch (err) {
-      console.error(err);
+      console.error("Error submitting answer:", err.response?.data || err.message);
       toast.error(err.response?.data?.message || 'AI evaluation failed.');
     } finally {
       setIsSubmitting(false);
