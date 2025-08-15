@@ -11,27 +11,14 @@ import Navbar from './components/Navbar';
 import { AuthProvider } from './context/AuthContext';
 import { Toaster } from 'react-hot-toast';
 
-/**
- * ProtectedRoute checks if the user is logged in before rendering children.
- * If not logged in, redirects to /login
- */
+// ✅ Protect pages for authenticated users only
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('token');
   return token ? children : <Navigate to="/login" replace />;
 };
 
-/**
- * PublicRoute redirects logged-in users away from login/register pages
- */
-const PublicRoute = ({ children }) => {
-  const token = localStorage.getItem('token');
-  return token ? <Navigate to="/" replace /> : children;
-};
-
 function AppContent() {
   const location = useLocation();
-
-  // Hide Navbar on login and register pages
   const showNavbar = location.pathname !== '/login' && location.pathname !== '/register';
 
   return (
@@ -42,16 +29,16 @@ function AppContent() {
       <Box component="main" sx={{ flexGrow: 1, width: '100%' }}>
         <Routes>
           {/* Public routes */}
-          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-          <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
           {/* Protected routes */}
           <Route path="/" element={<ProtectedRoute><Homepage /></ProtectedRoute>} />
           <Route path="/practice" element={<ProtectedRoute><Practice /></ProtectedRoute>} />
           <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
 
-          {/* Catch-all for unknown routes */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          {/* Catch-all */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </Box>
     </Box>
